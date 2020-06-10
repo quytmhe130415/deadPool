@@ -1,11 +1,9 @@
 const btnFetch = document.querySelector("#btnSearch");
 const { ipcRenderer, dialog } = require("electron");
 const showGif = document.querySelector(".show");
-const urlLoad =
-  "https://i.imgur.com/gVX3yPJ.gif";
+const imgDivs = document.querySelectorAll("div.image-card");
+const urlLoad = "https://i.imgur.com/gVX3yPJ.gif";
 // const clipboard = require('electron-clipboard-extended');
-
-
 
 btnFetch.addEventListener("click", (e) => {
   e.preventDefault();
@@ -40,18 +38,26 @@ ipcRenderer.on("rely-search", async (event, arg) => {
     const imageCard = document.createElement("div");
     imageCard.className = "image-card";
     imageCard.style.backgroundImage = `url(${urlLoad})`;
+
     showGif.append(imageCard);
 
     const img = document.createElement("img");
     img.src = item.url;
     img.classList.add("imgCss");
     imageCard.appendChild(img);
+    img.style.display = "none";
 
     const favou = document.createElement("img");
     favou.classList.add("imgFav");
     favou.src = "../download.png";
 
     imageCard.appendChild(favou);
+    imageCard.onmouseover = function () {
+      favou.style.display = "block";
+    };
+    imageCard.onmouseout = function () {
+      favou.style.display = "none";
+    };
 
     img.onload = () => {
       imageCard.style.backgroundImage = `url('${item.url}')`;
@@ -68,13 +74,15 @@ document.querySelector("#tab-search").addEventListener("click", (e) => {
 
 onscroll = (e) => {
   e.preventDefault();
-  observer.observe(document.querySelector('#btnSearch'));
+  observer.observe(document.querySelector("#btnSearch"));
 };
 
-const observer = new IntersectionObserver(function (entries) {
-  if (entries[0].isIntersecting === true) {
-    const txtSearch = document.querySelector("#txtSearch").value;
-    ipcRenderer.send("search-gifs", txtSearch);
-
-  }
-}, {threshold: [1]});
+const observer = new IntersectionObserver(
+  function (entries) {
+    if (entries[0].isIntersecting === true) {
+      const txtSearch = document.querySelector("#txtSearch").value;
+      ipcRenderer.send("search-gifs", txtSearch);
+    }
+  },
+  { threshold: [1] }
+);
