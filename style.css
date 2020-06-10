@@ -62,6 +62,7 @@ body {
 
 #txtSearch:hover {
     border: 2px solid #f53b57;
+    cursor: pointer;
 }
 
 .nav-bar {
