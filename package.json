@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "check-node-version": "^4.0.3",
     "clipboard": "^2.0.6",
     "express": "^4.17.1",
     "intersection-observer": "^0.10.0",
