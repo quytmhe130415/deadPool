@@ -15,7 +15,9 @@
     "clipboard": "^2.0.6",
     "express": "^4.17.1",
     "intersection-observer": "^0.10.0",
-    "node-fetch": "^2.6.0"
+    "localStorage": "^1.0.4",
+    "node-fetch": "^2.6.0",
+    "nodemon": "^2.0.4"
   },
   "devDependencies": {
     "electron": "^6.1.12",

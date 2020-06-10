@@ -49,6 +49,23 @@ body {
   margin-left: 3rem;
   margin-bottom: 3rem;
 }
+#btnDownload {
+  background-color:#9b59b6;
+  color: #ecf0f1;
+  border-radius: 15px;
+  outline: none;
+  width: 100px;
+  height: 35px;
+  margin-left: 3rem;
+  margin-top: 10px;
+  position: fixed;
+}
+
+
+#btnDownload:hover {
+  background-color: #e74c3c;
+  border: cornflowerblue;
+}
 
 #btnSearch:hover {
   background-color: #d63031;
@@ -62,7 +79,8 @@ body {
   margin-top: 20px;
 }
 
-#txtSearch:hover {
+#txtSearch,
+#btnDownload:hover {
   border: 2px solid #f53b57;
   cursor: pointer;
 }

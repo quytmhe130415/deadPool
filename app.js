@@ -3,12 +3,13 @@ const API_KEY = "4adlDmQdqYPDNjGt2C6fFxbJHxrNj9Uj";
 const fetch = require("electron-main-fetch");
 
 const searchLimit = 8;
+let offSetNow = 0;
 const appendApiKey = (url) => `${url}&api_key=${API_KEY}`;
 const createSearchUrl = (keyword, offset) =>
   appendApiKey(
     `${API_ROOT}/search?q=${encodeURIComponent(
       keyword
-    )}&limit=${searchLimit}&offset=${offset}`
+    )}&limit=${searchLimit}&offset=${offSetNow}`
   );
 const createGetGifsUrl = (ids) =>
   appendApiKey(`${API_ROOT}?ids=${ids.join(",")}`);
@@ -21,6 +22,7 @@ const extractAPIResponse = async (response) => {
   }));
   const { count, offset, total_count } = pagination;
   const isLastPage = total_count === offset + count;
+  offSetNow += searchLimit;
   return { images, isLastPage };
 };
 
@@ -32,9 +34,13 @@ const fetchGifs = async (ids) => {
   console.error(await res.json());
   throw new Error("fetchGifSearch fail");
 };
-const fetchGifSearch = async (keyword, offset = 0) => {
-  const res = await fetch(createSearchUrl(keyword, offset));
 
+const fetchGifSearch = async (arg) => {
+  const { txtSearch, status } = arg;
+  if (status) {
+    offSetNow = 0;
+  }
+  const res = await fetch(createSearchUrl(txtSearch));
   if (res.status === 200) {
     return extractAPIResponse(res);
   }
