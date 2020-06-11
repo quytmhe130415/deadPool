@@ -18,7 +18,8 @@
     "intersection-observer": "^0.10.0",
     "localStorage": "^1.0.4",
     "node-fetch": "^2.6.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "p-limit": "^3.0.1"
   },
   "devDependencies": {
     "electron": "^6.0.0",
