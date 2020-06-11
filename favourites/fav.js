@@ -1,6 +1,6 @@
 "use strict";
 const { ipcRenderer } = require("electron");
-const displayGif = document.querySelector(".showGif");
+const displayGif = document.querySelector(".show");
 const urlLoad = "https://i.imgur.com/gVX3yPJ.gif";
 
 document.querySelector("#tab-favorites").innerText = `Favorites(${localStorage.length})`;
@@ -10,7 +10,12 @@ document.querySelector("#tab-search").addEventListener("click", (e) => {
     ipcRenderer.send("show-search");
 
 });
+//* add event for search
+document.querySelector("#tab-upload").addEventListener("click", (e) => {
+    e.preventDefault();
+    ipcRenderer.send("show-upload");
 
+});
 function loadImg() {
     const lstUrl = Object.values(localStorage);
     for (let i = 0; i < lstUrl.length; i++) {
@@ -29,7 +34,7 @@ function loadImg() {
 
         const favou = document.createElement('img');
         favou.classList.add('imgFav');
-        favou.src = '../like.png';
+        favou.src = '../unlike.png';
 
         divImgCard.appendChild(favou);
 

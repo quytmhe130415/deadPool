@@ -13,7 +13,7 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: true,
         },
-        icon: __dirname + "./skype.png",
+        icon: __dirname + "./tiktok.png",
     });
     // mainWindow.setMenu(null);
     // mainWindow.webContents.openDevTools();
@@ -26,7 +26,6 @@ const createWindow = () => {
         event.reply("rely-search", keyWord);
     });
 
-
     //* show-search
     ipcMain.on("show-search", async(event, arg) => {
         mainWindow.loadFile("./search/search.html");
@@ -37,6 +36,20 @@ const createWindow = () => {
         mainWindow.loadFile("./favourites/fav.html");
     });
 
+    //* upload
+    ipcMain.on('show-upload', async(event, arg) => {
+        mainWindow.loadFile('./upload/upload.html');
+    })
+    
+    //* open file to upload
+    ipcMain.on('show-openFile', (event, arg) => {
+      dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] })
+        .then(path => {
+          if(path){
+            post(path);
+          }
+        }).catch(err => console.log(err));
+    })
 };
 app.whenReady().then(() => {
     createWindow();

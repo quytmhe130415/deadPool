@@ -21,7 +21,7 @@
     "nodemon": "^2.0.4"
   },
   "devDependencies": {
-    "electron": "^6.1.12",
+    "electron": "^6.0.0",
     "electron-main-fetch": "^1.0.0"
   }
 }
