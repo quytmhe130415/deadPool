@@ -1,3 +1,4 @@
+"use strict";
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const { fetchGifSearch, fetchGifs } = require("./app.js");
 const fs = require("fs-extra");
@@ -28,22 +29,22 @@ const createWindow = () => {
     });
 
     //* show-search
-    ipcMain.on("show-search", async(event, arg) => {
+    ipcMain.on("show-search", async() => {
         mainWindow.loadFile("./search/search.html");
     });
 
     //* like
-    ipcMain.on("show-favorites", async(event, arg) => {
+    ipcMain.on("show-favorites", async() => {
         mainWindow.loadFile("./favourites/fav.html");
     });
 
     //* upload
-    ipcMain.on('show-upload', async(event, arg) => {
+    ipcMain.on('show-upload', async() => {
         mainWindow.loadFile('./upload/upload.html');
     })
 
     //* open file to upload
-    ipcMain.on('show-openFile', (event, arg) => {
+    ipcMain.on('show-openFile', () => {
         dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] })
             .then(path => {
                 if (path) {
@@ -51,41 +52,63 @@ const createWindow = () => {
                 }
             }).catch(err => console.log(err));
     });
+
+    //* check img to download
+    ipcMain.on("no-item", () => {
+        dialog.showMessageBox({
+            type: "error",
+            message: "No img favorites to download!!!"
+        }).catch(console.log);
+    });
+
     //* download img
-    ipcMain.on('downloadFav', (event, urlImg) => {
+    ipcMain.on('downloadFav', (event, dataImg) => {
         dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] })
-            .then(async path => {
-                if (!path.canceled) {
-                    const limit = pLimit(5);
-                    const imgPromise = urlImg.map((url) => {
-                        return limit(() => {
-                            return downloadImage(url, `${path.filePaths[0]}.gif`);
-                        })
-                    })
-                    console.log(imgPromise);
-                    await Promise.all(imgPromise);
-                    dialog.showMessageBox({ message: "Download successful!!!" });
-                } else {
-                    throw new Error("open folder to export ...!");
-                }
-            }).catch(err => dialog.showMessageBox({ message: "download fail!" }))
-    })
+            .then((data) => {
+                console.log(data.filePaths[0]);
+                if (!data.filePaths[0]) return;
+                downloadAllFile(data.filePaths[0], dataImg)
+                    .then(() => {
+                        dialog.showMessageBox({
+                            title: "Message",
+                            message: "Download Done!!!"
+                        }).catch(console.log);
+                    }).catch(console.log);
+            })
+    });
 
     //* function download img
-    async function downloadImage(url, path) {
-        const respose = await Axios({
-            url,
-            method: 'GET',
-            resposeType: "stream"
-        })
-        const ws = fs.createWriteStream(path);
-        return new Promise((resolve, reject) => {
-            ws.once("close", resolve);
-            ws.once("error", reject);
-            respose.data.pipe(ws);
+    const downloadOneImg = ({ url, filePath }) => {
+
+        return new Promise(async(resolve, reject) => {
+            const response = await Axios({
+                responseType: 'stream',
+                method: 'GET',
+                url: url,
+            })
+
+            const ws = fs.createWriteStream(filePath)
+            ws.once('close', resolve)
+            ws.once('error', reject)
+            response.data.pipe(ws)
         })
     }
+
+    //* function download allFile
+    function downloadAllFile(folder, storage) {
+        if (!folder) return;
+        const images = Object.keys(storage).map((imageKey) => {
+            const filePath = path.resolve(folder, `${Math.floor(Math.random() * Number.MAX_VALUE)}.gif`)
+            return {
+                filePath,
+                url: storage[imageKey],
+            }
+        })
+        return Promise.all(images.map(image => downloadOneImg(image)))
+            .catch((e) => { console.log(e) });
+    }
 };
+
 app.whenReady().then(() => {
     createWindow();
 });

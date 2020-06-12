@@ -2,7 +2,7 @@
 const { ipcRenderer } = require("electron");
 const displayGif = document.querySelector(".show");
 const urlLoad = "https://i.imgur.com/gVX3yPJ.gif";
-let lstDownload = [];
+// let lstDownload = [];
 
 //* Set favorites
 document.querySelector("#tab-favorites").innerText = `Favorites(${localStorage.length})`;
@@ -18,7 +18,6 @@ document.querySelector("#tab-upload").addEventListener("click", (e) => {
     ipcRenderer.send("show-upload");
 
 });
-
 //* load image fav
 function loadImg() {
     const lstUrl = Object.values(localStorage);
@@ -64,7 +63,8 @@ function loadImg() {
         });
 
         //*add url image to lstDownload
-        lstDownload.push(lstUrl[i]);
+        // lstDownload.push(lstUrl[i]);
+
         displayGif.appendChild(divImgCard);
 
     }
@@ -73,7 +73,11 @@ loadImg();
 //* add event for btn export 'download'
 document.querySelector('#btnDownload').addEventListener('click', async(e) => {
     e.preventDefault();
-    ipcRenderer.send('downloadFav', lstDownload);
+    if (!localStorage.length) {
+        ipcRenderer.send('no-item');
+    } else {
+        ipcRenderer.send('downloadFav', localStorage);
+    }
 
 })
 console.log(localStorage);
