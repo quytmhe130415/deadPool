@@ -22,7 +22,7 @@
     "p-limit": "^3.0.1"
   },
   "devDependencies": {
-    "electron": "^6.0.0",
+    "electron": "^7.2.4",
     "electron-main-fetch": "^1.0.0"
   }
 }
