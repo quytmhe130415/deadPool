@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: cornflowerblue;
+        }
+
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        
+        .container{
+            margin-left: 20px;
+        }
+
+        #challengeArea {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            height: 100%;
+            background-color: darksalmon;
+        }
+
+        img {
+            width: 50%;
+        }
+
+        #pokeList {
+            display: flex;
+            flex-direction: row;
+            width: 50%;
+        }
+        .card {
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 50%;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .deck {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #challengeBtn{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- <button id="challenge">challenge random opponent</button> -->
+        <input type="text">
+        <button id="search">search</button>
+        <div class="deck">
+            <div id="challengeArea" class="card">
+                <img id="poke" src="https://pokeres.bastionbot.org/images/pokemon/1.png" alt="not found">
+                <img style="display: none; border-radius: 50%;" id="loading"
+                    src="https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e479628bfb3f44d42fa89fb4a9ebd5462899ef53da2&rid=giphy.gif"
+                    alt="">
+                <div class="container">
+                    <h3 id="pokeName">bulbasaur</h3>
+                    <p id="pokeType">plant</p> 
+                    <p id="baseExp">base experience: 64</p>
+                </div>
+                <div id="challengeBtn"></div>
+            </div>            
+        </div>
+        <button id="showPoke">show all achieved pokemon</button>
+        <div id="pokeList"></div>
+        <div id="buttonArea"></div>
+    </div>
+    <script>
+        window.onload = async function () {
+            localStorage.clear()
+            let pokedecks = 10
+            const pokeImg = document.getElementById("poke")
+            const loadingImg = document.getElementById("loading")
+            const pokemons = await fetch(`https://pokeapi.co/api/v2/pokemon`)
+            const totalPokes = await pokemons.json()
+            console.log(totalPokes)
+            const pokeNameEle = document.getElementById("pokeName")
+            const showPokeBtn = document.getElementById("showPoke")
+            const pokeList = document.getElementById("pokeList")
+            const challengeBtn = document.getElementById("challenge")
+            let pageIndex = 1
+            const pageSize = 2
+            let currentPokemon;
+
+            pokeImg.addEventListener("click", catchPokemon)
+            async function catchPokemon() {
+                if (pokedecks > 0) {
+                    const pokeId = Math.floor(Math.random() * totalPokes.count) + 1
+                    loading(true)
+                    try {
+                        const result = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeId}/`)
+                        const pokemon = await result.json()
+                        pokeNameEle.innerText = pokemon.name
+                        document.getElementById("baseExp").innerText = "base experience: " + pokemon.base_experience
+                        document.getElementById("pokeType").innerText = ""
+                        pokemon.types.forEach(item => document.getElementById("pokeType").innerText += item.type.name + " | ")
+                        if (localStorage[pokeId]) {
+                            pokeNameEle.innerText = localStorage[pokeId].name + " acquired"
+                        } else {
+                            localStorage[pokeId] = JSON.stringify(pokemon)
+                            pokedecks--
+                        }
+                        currentPokemon = localStorage[pokeId]
+                        pokeImg.src = getImgById(pokeId)
+                        loading(false)
+                        paginatePokes(1, pageSize)
+                    } catch (err) {
+                        console.log("error " + err)
+                        loading(false)
+                    }
+                } else {
+                    window.alert("you don't have any pokedeck left! Challenge someone to get more")
+                }
+            }
+
+            showPokeBtn.addEventListener("click", e => {
+                if (Object.keys(localStorage).length > 2) {
+                    document.getElementById("buttonArea").innerHTML = null
+                    const nextBtn = document.createElement("button")
+                    const prevBtn = document.createElement("button")
+                    nextBtn.innerText = "next"
+                    prevBtn.innerText = "previous"
+                    document.getElementById("buttonArea").appendChild(prevBtn)
+                    document.getElementById("buttonArea").appendChild(nextBtn)
+                    nextBtn.addEventListener("click", e => {
+                        paginatePokes(++pageIndex, pageSize)
+                        if (pageIndex >= Math.ceil(Object.keys(localStorage).length / pageSize)) {
+                            nextBtn.disabled = true
+                        }
+                        prevBtn.disabled = false
+                    })
+                    prevBtn.addEventListener("click", e => {
+                        paginatePokes(--pageIndex, pageSize)
+                        if (pageIndex == 1) {
+                            prevBtn.disabled = true
+                        }
+                        nextBtn.disabled = false
+                    })
+                }
+                paginatePokes(pageIndex, pageSize)
+            })
+
+            function paginatePokes(pageIndex, pageSize) {
+                pokeList.innerHTML = null
+                Object.keys(localStorage).slice((pageIndex - 1) *pageSize, pageIndex*pageSize).forEach(key => {
+                    const pokeImgItem = document.createElement("img")
+                    pokeImgItem.src = getImgById(key)
+
+                    pokeImgItem.addEventListener("click", () => {
+                        pokeImg.src = getImgById(key)
+
+                        currentPokemon = JSON.parse(localStorage[key])
+                        document.getElementById("baseExp").innerText = "base experience: " + currentPokemon.base_experience
+                        document.getElementById("pokeType").innerText = ""
+                        currentPokemon.types.forEach(item => document.getElementById("pokeType").innerText += item.type.name + " | ")
+                        document.getElementById("challengeBtn").innerHTML = null
+                        currentPokemon.abilities.forEach(item => {
+                            const abiBtn = document.createElement('button')
+                            abiBtn.innerText = item.ability.name
+                            abiBtn.addEventListener("click", async () => {
+                                const abiInfo = await fetch(item.ability.url)
+                                const effects = await abiInfo.json()
+                                alert(effects.effect_entries[0].effect)
+                            })
+                            document.getElementById("challengeBtn").appendChild(abiBtn)
+                        })
+                    })
+                    pokeList.appendChild(pokeImgItem)
+                })
+            }
+
+            function loading(bool) {
+                pokeImg.style.display = bool ? "none" : "block"
+                loadingImg.style.display = bool ? "block" : "none"
+            }
+
+            function getImgById(pokeId) {
+                return `https://pokeres.bastionbot.org/images/pokemon/${pokeId}.png`
+            }
+        }
+    </script>
+</body>
+</html>

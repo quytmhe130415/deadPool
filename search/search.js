@@ -14,10 +14,10 @@ document.querySelector("#tab-favorites").addEventListener("click", (e) => {
 });
 
 //* add event for upload
-document.querySelector("#tab-upload").addEventListener("click", (e) => {
-    e.preventDefault();
-    ipcRenderer.send("show-upload");
-});
+// document.querySelector("#tab-upload").addEventListener("click", (e) => {
+//     e.preventDefault();
+//     ipcRenderer.send("show-upload");
+// });
 
 //* add event for button
 btnFetch.addEventListener("click", (e) => {

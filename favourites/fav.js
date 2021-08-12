@@ -13,11 +13,11 @@ document.querySelector("#tab-search").addEventListener("click", (e) => {
 
 });
 //* add event to open upload
-document.querySelector("#tab-upload").addEventListener("click", (e) => {
-    e.preventDefault();
-    ipcRenderer.send("show-upload");
+// document.querySelector("#tab-upload").addEventListener("click", (e) => {
+//     e.preventDefault();
+//     ipcRenderer.send("show-upload");
 
-});
+// });
 //* load image fav
 function loadImg() {
     const lstUrl = Object.values(localStorage);
