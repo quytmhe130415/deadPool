@@ -17,7 +17,7 @@
     "express": "^4.17.1",
     "intersection-observer": "^0.10.0",
     "localStorage": "^1.0.4",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "nodemon": "^2.0.4",
     "p-limit": "^3.0.1"
   },
